@@ -262,6 +262,85 @@ Content-Type: {{contentType}}
   "password": "missing-comma"
 }
 
+### === PRODUCTS MANAGEMENT ROUTES ===
+
+### 30. Get All Products (Public)
+GET {{baseUrl}}/products
+
+### 31. Get Featured Products (Public)
+GET {{baseUrl}}/products/featured
+
+### 32. Get All Products including inactive (Admin)
+GET {{baseUrl}}/products?includeInactive=true
+Authorization: Bearer {{accessToken}}
+
+### 33. Get Product by ID (Public)
+@productId = product-example-1
+GET {{baseUrl}}/products/{{productId}}
+
+### 34. Create New Product
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Produto Teste API",
+  "description": "Produto criado via API para teste",
+  "price": 199.99,
+  "originalPrice": 249.99,
+  "category": "Eletrônicos",
+  "isActive": true,
+  "isFeatured": true,
+  "rating": 4.8,
+  "reviewCount": 15
+}
+
+### 35. Update Product
+PATCH {{baseUrl}}/products/{{productId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Produto Atualizado",
+  "price": 179.99,
+  "description": "Descrição atualizada do produto"
+}
+
+### 36. Deactivate Product
+PATCH {{baseUrl}}/products/{{productId}}/deactivate
+Authorization: Bearer {{accessToken}}
+
+### 37. Activate Product
+PATCH {{baseUrl}}/products/{{productId}}/activate
+Authorization: Bearer {{accessToken}}
+
+### === PRODUCTS TESTING ===
+
+### 38. Test Product Not Found
+GET {{baseUrl}}/products/invalid-product-id
+
+### 39. Test Product Already Exists
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Produto Exemplo 1",
+  "price": 99.99,
+  "category": "Teste"
+}
+
+### 40. Test Invalid Product Data
+POST {{baseUrl}}/products
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "",
+  "price": -10,
+  "category": ""
+}
+
 ### === NOTES ===
 # 1. Replace {{userId}} with actual user ID from responses
 # 2. Update {{accessToken}} and {{refreshToken}} after each login
