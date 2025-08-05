@@ -83,3 +83,100 @@ model RefreshToken {
 
   @@map("refresh_tokens")
 }
+
+enum TransactionType {
+  entrada
+  saida
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  price         Decimal
+  originalPrice Decimal? @map("original_price")
+  category      String
+  isActive      Boolean  @default(true) @map("is_active")
+  isFeatured    Boolean  @default(false) @map("is_featured")
+  rating        Decimal  @default(0)
+  reviewCount   Int      @default(0) @map("review_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  images           ProductImage[]
+  promotions       Promotion[]
+  financialRecords FinancialRecord[]
+
+  @@map("products")
+}
+
+model Material {
+  id           String    @id @default(uuid())
+  name         String
+  type         String
+  brand        String?
+  color        String?
+  quantity     Int       @default(0)
+  unitPrice    Decimal?  @map("unit_price")
+  totalCost    Decimal?  @map("total_cost")
+  supplier     String?
+  purchaseDate DateTime? @map("purchase_date") @db.Date
+  notes        String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  financialRecords FinancialRecord[]
+
+  @@map("materials")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  imageUrl  String   @map("image_url")
+  altText   String?  @map("alt_text")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+model Promotion {
+  id                 String    @id @default(uuid())
+  productId          String    @map("product_id")
+  title              String
+  description        String?
+  discountPercentage Int?      @map("discount_percentage")
+  isHeroPromotion    Boolean   @default(false) @map("is_hero_promotion")
+  isActive           Boolean   @default(true) @map("is_active")
+  startDate          DateTime  @default(now()) @map("start_date")
+  endDate            DateTime? @map("end_date")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("promotions")
+}
+
+model FinancialRecord {
+  id            String          @id @default(uuid())
+  type          TransactionType
+  category      String
+  description   String
+  amount        Decimal
+  date          DateTime        @default(now()) @db.Date
+  paymentMethod String?         @map("payment_method")
+  notes         String?
+  productId     String?         @map("product_id")
+  materialId    String?         @map("material_id")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  product  Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  material Material? @relation(fields: [materialId], references: [id], onDelete: SetNull)
+
+  @@map("financial_records")
+}

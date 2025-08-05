@@ -247,9 +247,168 @@ async function main() {
     },
   });
 
-  console.log("? Seed completed successfully!");
+  // Seed Products
+  console.log("??? Creating products...");
+  const products = await Promise.all([
+    prisma.product.upsert({
+      where: { id: "product-example-1" },
+      update: {},
+      create: {
+        id: "product-example-1",
+        name: "Produto Exemplo 1",
+        description: "Descrição do produto exemplo",
+        price: 99.99,
+        originalPrice: 129.99,
+        category: "Categoria A",
+        isActive: true,
+        isFeatured: true,
+        rating: 4.5,
+        reviewCount: 25,
+      },
+    }),
+    prisma.product.upsert({
+      where: { id: "product-example-2" },
+      update: {},
+      create: {
+        id: "product-example-2",
+        name: "Produto Exemplo 2",
+        description: "Outro produto de exemplo",
+        price: 149.99,
+        category: "Categoria B",
+        isActive: true,
+        isFeatured: false,
+        rating: 4.2,
+        reviewCount: 18,
+      },
+    }),
+  ]);
+
+  // Seed Materials
+  console.log("?? Creating materials...");
+  const materials = await Promise.all([
+    prisma.material.upsert({
+      where: { id: "material-example-1" },
+      update: {},
+      create: {
+        id: "material-example-1",
+        name: "Material Exemplo 1",
+        type: "Tecido",
+        brand: "Brand A",
+        color: "Azul",
+        quantity: 100,
+        unitPrice: 15.5,
+        totalCost: 1550.0,
+        supplier: "Fornecedor ABC",
+        purchaseDate: new Date("2024-01-15"),
+        notes: "Material de alta qualidade",
+      },
+    }),
+    prisma.material.upsert({
+      where: { id: "material-example-2" },
+      update: {},
+      create: {
+        id: "material-example-2",
+        name: "Material Exemplo 2",
+        type: "Linha",
+        brand: "Brand B",
+        color: "Branco",
+        quantity: 50,
+        unitPrice: 8.75,
+        totalCost: 437.5,
+        supplier: "Fornecedor XYZ",
+        purchaseDate: new Date("2024-01-20"),
+      },
+    }),
+  ]);
+
+  // Seed Product Images
+  console.log("??? Creating product images...");
+  await Promise.all([
+    prisma.productImage.upsert({
+      where: { id: "product-image-1" },
+      update: {},
+      create: {
+        id: "product-image-1",
+        productId: products[0].id,
+        imageUrl: "https://example.com/produto1-img1.jpg",
+        altText: "Produto 1 - Imagem Principal",
+        sortOrder: 1,
+      },
+    }),
+    prisma.productImage.upsert({
+      where: { id: "product-image-2" },
+      update: {},
+      create: {
+        id: "product-image-2",
+        productId: products[0].id,
+        imageUrl: "https://example.com/produto1-img2.jpg",
+        altText: "Produto 1 - Imagem Secundária",
+        sortOrder: 2,
+      },
+    }),
+  ]);
+
+  // Seed Promotions
+  console.log("?? Creating promotions...");
+  await Promise.all([
+    prisma.promotion.upsert({
+      where: { id: "promotion-1" },
+      update: {},
+      create: {
+        id: "promotion-1",
+        productId: products[0].id,
+        title: "Promoção de Lançamento",
+        description: "Desconto especial para novos produtos",
+        discountPercentage: 20,
+        isHeroPromotion: true,
+        isActive: true,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      },
+    }),
+  ]);
+
+  // Seed Financial Records
+  console.log("?? Creating financial records...");
+  await Promise.all([
+    prisma.financialRecord.upsert({
+      where: { id: "financial-record-1" },
+      update: {},
+      create: {
+        id: "financial-record-1",
+        type: "entrada",
+        category: "Venda",
+        description: "Venda do Produto 1",
+        amount: 99.99,
+        date: new Date(),
+        paymentMethod: "Cartão de Crédito",
+        productId: products[0].id,
+        notes: "Primeira venda registrada",
+      },
+    }),
+    prisma.financialRecord.upsert({
+      where: { id: "financial-record-2" },
+      update: {},
+      create: {
+        id: "financial-record-2",
+        type: "saida",
+        category: "Compra de Material",
+        description: "Compra de material para produção",
+        amount: 1550.0,
+        date: new Date("2024-01-15"),
+        paymentMethod: "Transferência Bancária",
+        materialId: materials[0].id,
+        notes: "Investimento em estoque",
+      },
+    }),
+  ]);
+
+  console.log("?? Seed completed successfully!");
+  console.log("?? Created products:", products.length);
+  console.log("?? Created materials:", materials.length);
+  console.log("?? Created financial records: 2");
   console.log("\n?? Created users:");
-  console.log("?? Admin: admin@example.com / admin123 (All permissions)");
+  console.log("????? Admin: admin@example.com / admin123 (All permissions)");
   console.log(
     "?? Moderator: moderator@example.com / moderator123 (Limited admin permissions)"
   );

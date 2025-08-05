@@ -12,6 +12,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { Public } from "../common/decorators/public.decorator";
 import { Roles } from "../common/decorators/roles.decorator";
+import { Role } from "../common/enums/role.enum";
 
 @Controller("users")
 export class UsersController {
@@ -24,7 +25,7 @@ export class UsersController {
     return user;
   }
 
-  @Roles("admin")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Patch(":id")
   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     console.log("DTO", JSON.stringify(updateUserDto, null, 2));
@@ -33,14 +34,14 @@ export class UsersController {
     return user;
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Get()
   async findAll() {
     const users = await this.usersService.findAll();
     return users;
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Get(":id")
   async findOne(@Param("id") id: string) {
     const user = await this.usersService.findByIdWithRoles(id);
@@ -66,7 +67,7 @@ export class UsersController {
     };
   }
 
-  @Roles("user", "admin", "moderator")
+  @Roles(Role.USER, Role.ADMIN, Role.MODERATOR)
   @Get("profile/me")
   async getProfile(@Request() req) {
     const user = await this.usersService.findByIdWithRoles(req.user.id);
