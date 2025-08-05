@@ -4,63 +4,44 @@ import {
   Post,
   Body,
   Param,
-  UseGuards,
   Request,
+  Patch,
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
-import { RolesGuard } from "../auth/guards/roles.guard";
-import { Roles } from "../auth/decorators/roles.decorator";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { Public } from "../common/decorators/public.decorator";
+import { Roles } from "../common/decorators/roles.decorator";
 
 @Controller("users")
-@UseGuards(AuthGuard("jwt"), RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @Public()
   @Post()
-  @Roles("admin")
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.usersService.create(createUserDto);
-    return {
-      message: "User created successfully",
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        roles: user.roles.map((ur) => ({
-          name: ur.role.name,
-          description: ur.role.description,
-          permissions: ur.role.permissions.map((rp) => ({
-            name: rp.permission.name,
-            description: rp.permission.description,
-            resource: rp.permission.resource,
-            action: rp.permission.action,
-          })),
-        })),
-      },
-    };
+    return user;
   }
 
-  @Get()
   @Roles("admin")
+  @Patch(":id")
+  async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
+    console.log("DTO", JSON.stringify(updateUserDto, null, 2));
+    console.log("ID", JSON.stringify(id, null, 2));
+    const user = await this.usersService.update(id, updateUserDto);
+    return user;
+  }
+
+  @Roles("admin", "moderator")
+  @Get()
   async findAll() {
     const users = await this.usersService.findAll();
-    return {
-      message: "Users retrieved successfully",
-      users: users.map((user) => ({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        roles: user.roles.map((ur) => ur.role.name),
-      })),
-    };
+    return users;
   }
 
+  @Roles("admin", "moderator")
   @Get(":id")
-  @Roles("admin")
   async findOne(@Param("id") id: string) {
     const user = await this.usersService.findByIdWithRoles(id);
     return {
@@ -85,10 +66,10 @@ export class UsersController {
     };
   }
 
+  @Roles("user", "admin", "moderator")
   @Get("profile/me")
-  @Roles("user", "admin")
   async getProfile(@Request() req) {
-    const user = await this.usersService.findByIdWithRoles(req.user.userId);
+    const user = await this.usersService.findByIdWithRoles(req.user.id);
     return {
       message: "Profile retrieved successfully",
       user: {

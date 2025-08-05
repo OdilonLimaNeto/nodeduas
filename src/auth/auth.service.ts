@@ -6,6 +6,11 @@ import { UsersService } from "../users/users.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { LoginDto } from "./dto/login.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import {
+  InvalidCredentialsException,
+  TokenExpiredException,
+  UnauthorizedAccessException,
+} from "../common/exceptions";
 
 @Injectable()
 export class AuthService {
@@ -18,11 +23,18 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
+
+    if (!user) {
+      throw new InvalidCredentialsException();
     }
-    return null;
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new InvalidCredentialsException();
+    }
+
+    const { password: _, ...result } = user;
+    return result;
   }
 
   async login(loginDto: LoginDto) {
@@ -106,7 +118,7 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string, refreshToken: string) {
+  async logout(refreshToken: string) {
     await this.revokeRefreshToken(refreshToken);
     return { message: "Logged out successfully" };
   }
@@ -151,5 +163,16 @@ export class AuthService {
       where: { userId },
       data: { isRevoked: true },
     });
+  }
+
+  async validateToken(token: string): Promise<any> {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      if (error.name === "TokenExpiredError") {
+        throw new TokenExpiredException();
+      }
+      throw new UnauthorizedAccessException();
+    }
   }
 }

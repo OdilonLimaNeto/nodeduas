@@ -5,8 +5,13 @@ import {
   MinLength,
   IsArray,
   IsOptional,
+  IsEnum,
 } from "class-validator";
 
+export enum Roles {
+  ADMIN = "admin",
+  USER = "user",
+}
 export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
@@ -22,6 +27,6 @@ export class CreateUserDto {
 
   @IsArray()
   @IsOptional()
-  @IsString({ each: true })
-  roles?: string[];
+  @IsEnum(Roles, { each: true })
+  roles?: Roles[];
 }

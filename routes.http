@@ -1,0 +1,292 @@
+### Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+### === AUTHENTICATION ROUTES ===
+
+### 1. Login - Get Access & Refresh Tokens
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+### Store tokens from login response
+@accessToken = {{login.response.body.access_token}}
+@refreshToken = {{login.response.body.refresh_token}}
+
+### 2. Refresh Tokens
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
+
+### 3. Get User Profile (Protected Route)
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{accessToken}}
+
+### 4. Logout
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "refresh_token": "{{refreshToken}}"
+}
+
+### === USER MANAGEMENT ROUTES ===
+
+### 5. Create New User
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Thayná Feitoza",
+  "email": "thay@nodeduas.com",
+  "password": "password123",
+  "roles": ["admin"]
+}
+
+### 6. Get All Users
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+### 7. Get User by ID
+@userId = b2d988da-ba6e-4d20-a5ba-a0f9ed63eaab
+GET {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 8. Update User
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Thayná Feitoza",
+  "email": "thay@nodeduas.com",
+  "isActive": false
+}
+
+### 9. Update User with Roles  
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Thayná Admin",
+  "roles": ["user"]
+}
+
+### 10. Update User Password
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "password": "newPassword123"
+}
+
+### === TESTING CUSTOM EXCEPTIONS ===
+
+### 11. Test Invalid Credentials
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+### 12. Test User Not Found
+GET {{baseUrl}}/users/invalid-user-id
+Authorization: Bearer {{accessToken}}
+
+### 13. Test User Already Exists
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Duplicate User",
+  "email": "admin@example.com",
+  "password": "password123"
+}
+
+### 14. Test Invalid User Data
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "",
+  "email": "invalid-email",
+  "password": "123"
+}
+
+### 15. Test Expired/Invalid Token
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer invalid-token-here
+
+### 16. Test Invalid Refresh Token
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refresh_token": "invalid-refresh-token"
+}
+
+### 17. Test Unauthorized Access (No Token)
+GET {{baseUrl}}/users
+# No Authorization header
+
+### === ROLE & PERMISSIONS TESTING ===
+
+### 18. Create User with Invalid Role
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password123",
+  "roles": ["invalid-role", "another-invalid-role"]
+}
+
+### 19. Update User with Invalid Role
+PUT {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "roles": ["non-existent-role"]
+}
+
+### === ADMIN SPECIFIC ROUTES (if implemented) ===
+
+### 20. Revoke All User Refresh Tokens (Admin)
+POST {{baseUrl}}/auth/revoke-all/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### === DEVELOPMENT & TESTING HELPERS ===
+
+### 21. Create Admin User (for initial setup)
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+  "name": "System Admin",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "roles": ["admin"]
+}
+
+### 22. Create Regular User
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Regular User",
+  "email": "user@example.com",
+  "password": "user123",
+  "roles": ["user"]
+}
+
+### 23. Create Moderator User
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Moderator User",
+  "email": "moderator@example.com",
+  "password": "mod123",
+  "roles": ["moderator"]
+}
+
+### === BULK OPERATIONS ===
+
+### 24. Get User with Full Role Details
+GET {{baseUrl}}/users/{{userId}}/roles
+Authorization: Bearer {{accessToken}}
+
+### 25. Deactivate User
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "isActive": false
+}
+
+### 26. Reactivate User
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "isActive": true
+}
+
+### === ERROR SCENARIOS FOR TESTING ===
+
+### 27. Test Empty Request Body
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{}
+
+### 28. Test Missing Required Fields
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Incomplete User"
+}
+
+### 29. Test Malformed JSON
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "test@example.com"
+  "password": "missing-comma"
+}
+
+### === NOTES ===
+# 1. Replace {{userId}} with actual user ID from responses
+# 2. Update {{accessToken}} and {{refreshToken}} after each login
+# 3. Adjust {{baseUrl}} if running on different port
+# 4. Some routes may require specific roles/permissions
+# 5. Custom exceptions will return structured error responses
+
+### === SAMPLE RESPONSES ===
+# Login Success:
+# {
+#   "access_token": "eyJhbGciOiJIUzI1...",
+#   "refresh_token": "eyJhbGciOiJIUzI1...",
+#   "user": {
+#     "id": "uuid",
+#     "email": "admin@example.com",
+#     "name": "Admin User",
+#     "roles": ["admin"]
+#   }
+# }
+
+# Error Response:
+# {
+#   "statusCode": 401,
+#   "message": "Invalid credentials provided",
+#   "error": "InvalidCredentialsException",
+#   "timestamp": "2024-01-15T14:30:25.123Z",
+#   "path": "/auth/login"
+# }
