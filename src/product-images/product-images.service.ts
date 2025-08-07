@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
-import { AwsS3Service } from "../common/services/aws-s3.service";
+import { AwsS3Service } from "../common/providers/s3/s3.service";
 import { randomUUID } from "crypto";
 import {
   ProductNotFoundException,
