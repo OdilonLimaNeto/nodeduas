@@ -341,6 +341,146 @@ Authorization: Bearer {{accessToken}}
   "category": ""
 }
 
+### === PRODUCT IMAGES MANAGEMENT ===
+
+### 41. Generate Upload URLs for Product Images
+# @name generateUploadUrls
+POST {{baseUrl}}/products/{{productId}}/images/upload-urls
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "files": [
+    {
+      "fileName": "product-image-1.jpg",
+      "contentType": "image/jpeg"
+    },
+    {
+      "fileName": "product-image-2.png", 
+      "contentType": "image/png"
+    }
+  ]
+}
+
+### Store upload data from response
+@uploadUrl = {{generateUploadUrls.response.body.$[0].uploadUrl}}
+@imageKey = {{generateUploadUrls.response.body.$[0].key}}
+
+### 42. Confirm Upload (after uploading to S3)
+POST {{baseUrl}}/products/{{productId}}/images/confirm
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "uploads": [
+    {
+      "key": "{{imageKey}}",
+      "altText": "Product main image"
+    }
+  ]
+}
+
+### 43. Get Product Images (Public)
+GET {{baseUrl}}/products/{{productId}}/images
+
+### 44. Reorder Product Images
+PATCH {{baseUrl}}/products/{{productId}}/images/reorder
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "imageOrders": [
+    {
+      "id": "image-id-1",
+      "sortOrder": 2
+    },
+    {
+      "id": "image-id-2", 
+      "sortOrder": 1
+    }
+  ]
+}
+
+### 45. Delete Product Image
+@imageId = image-id-to-delete
+DELETE {{baseUrl}}/products/{{productId}}/images/{{imageId}}
+Authorization: Bearer {{accessToken}}
+
+### 46. Get Upload Configuration (Public)
+GET {{baseUrl}}/products/{{productId}}/images/config
+
+### === PRODUCT IMAGES TESTING ===
+
+### 47. Test Max Images Limit (should fail after 3 images)
+POST {{baseUrl}}/products/{{productId}}/images/upload-urls
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "files": [
+    { "fileName": "image4.jpg", "contentType": "image/jpeg" },
+    { "fileName": "image5.jpg", "contentType": "image/jpeg" }
+  ]
+}
+
+### 48. Test Invalid File Type
+POST {{baseUrl}}/products/{{productId}}/images/upload-urls
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "files": [
+    {
+      "fileName": "document.pdf",
+      "contentType": "application/pdf"
+    }
+  ]
+}
+
+### === EXEMPLO COMPLETO: ADMIN FAZENDO UPLOAD DE 1 IMAGEM ===
+
+### PASSO 1: Solicitar URL de Upload
+# @name requestUpload
+POST {{baseUrl}}/products/{{productId}}/images/upload-urls
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "files": [
+    {
+      "fileName": "produto-destaque.jpg",
+      "contentType": "image/jpeg"
+    }
+  ]
+}
+
+### PASSO 2: Pegar URL da resposta (copie manualmente da resposta acima)
+@uploadUrl = https://meu-bucket.s3.us-east-1.amazonaws.com/products/product-example-1/a1b2c3d4.jpg?X-Amz-Algorithm=...
+@imageKey = products/product-example-1/a1b2c3d4.jpg
+
+### PASSO 3: Upload para S3 (SIMULAR - na prática seria feito pelo frontend)
+# PUT {{uploadUrl}}
+# Content-Type: image/jpeg
+# 
+# [ARQUIVO BINÁRIO produto-destaque.jpg]
+
+### PASSO 4: Confirmar Upload Concluído
+POST {{baseUrl}}/products/{{productId}}/images/confirm
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "uploads": [
+    {
+      "key": "{{imageKey}}",
+      "altText": "Produto em destaque - Imagem principal"
+    }
+  ]
+}
+
+### VERIFICAR: Listar imagens do produto
+GET {{baseUrl}}/products/{{productId}}/images
+
 ### === NOTES ===
 # 1. Replace {{userId}} with actual user ID from responses
 # 2. Update {{accessToken}} and {{refreshToken}} after each login

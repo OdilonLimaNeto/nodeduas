@@ -433,13 +433,14 @@ O sistema implementa **logs estruturados** para todas as exceções:
 - ? **Autenticação JWT** completa
 - ? **Sistema de roles** e permissões
 - ? **CRUD de usuários** com validações
+- ? **CRUD de produtos** completo
+- ? **Upload de imagens S3** com presigned URLs
+- ? **Gerenciamento de imagens** (máx 3 por produto)
+- ? **Reordenação de imagens** via drag & drop
 - ? **Exceções customizadas** com logs estruturados
 - ? **Refresh tokens** com revogação
 - ? **Testes HTTP** automatizados
 - ? **Documentação** completa
-- ? **Filtros globais** de exceção
-- ? **Transações** de banco de dados
-- ? **Hash de senhas** seguro
 
 ## ?? Próximos Passos
 
@@ -453,3 +454,253 @@ O sistema implementa **logs estruturados** para todas as exceções:
 ---
 
 **Desenvolvido com ?? usando NestJS + TypeScript**
+
+## ??? **Gerenciamento de Imagens de Produtos**
+
+### Sistema de Upload S3
+
+O sistema utiliza **upload direto ao AWS S3** via presigned URLs para máxima performance e escalabilidade.
+
+#### **Limitações:**
+
+- ? Máximo **3 imagens** por produto
+- ? Tamanho máximo **5MB** por imagem
+- ? Formatos aceitos: **JPG, PNG, WebP**
+- ? Ordem configurável das imagens
+
+#### **Fluxo de Upload:**
+
+```mermaid
+sequenceDiagram
+    Frontend->>API: 1. Solicita URLs de upload
+    API->>AWS S3: 2. Gera presigned URLs
+    AWS S3->>API: 3. Retorna URLs temporárias
+    API->>Frontend: 4. Envia URLs + metadata
+    Frontend->>AWS S3: 5. Upload direto das imagens
+    Frontend->>API: 6. Confirma upload completo
+    API->>Database: 7. Salva referências das imagens
+```
+
+### **Endpoints de Imagens**
+
+#### `POST /products/{productId}/images/upload-urls`
+
+Gera URLs temporárias para upload direto ao S3.
+
+**Roles:** `admin`, `moderator`
+
+**Request Body:**
+
+```json
+{
+  "files": [
+    {
+      "fileName": "product-image-1.jpg",
+      "contentType": "image/jpeg"
+    },
+    {
+      "fileName": "product-image-2.png",
+      "contentType": "image/png"
+    }
+  ]
+}
+```
+
+**Response:**
+
+```json
+[
+  {
+    "key": "products/uuid/image1.jpg",
+    "uploadUrl": "https://bucket.s3.region.amazonaws.com/...",
+    "fileName": "product-image-1.jpg",
+    "sortOrder": 1
+  }
+]
+```
+
+---
+
+#### `POST /products/{productId}/images/confirm`
+
+Confirma upload e salva referências no banco.
+
+**Roles:** `admin`, `moderator`
+
+**Request Body:**
+
+```json
+{
+  "uploads": [
+    {
+      "key": "products/uuid/image1.jpg",
+      "altText": "Product main image"
+    }
+  ]
+}
+```
+
+---
+
+#### `GET /products/{productId}/images`
+
+Lista imagens do produto (público).
+
+**Response:**
+
+```json
+[
+  {
+    "id": "uuid",
+    "imageUrl": "https://bucket.s3.amazonaws.com/products/uuid/image1.jpg",
+    "altText": "Product main image",
+    "sortOrder": 1,
+    "createdAt": "2024-01-15T10:30:00.000Z"
+  }
+]
+```
+
+---
+
+#### `PATCH /products/{productId}/images/reorder`
+
+Altera ordem de exibição das imagens.
+
+**Roles:** `admin`, `moderator`
+
+**Request Body:**
+
+```json
+{
+  "imageOrders": [
+    { "id": "uuid1", "sortOrder": 2 },
+    { "id": "uuid2", "sortOrder": 1 }
+  ]
+}
+```
+
+---
+
+#### `DELETE /products/{productId}/images/{imageId}`
+
+Remove imagem do produto e do S3.
+
+**Roles:** `admin`
+
+### **Configuração AWS S3**
+
+#### **Variáveis de Ambiente (.env)**
+
+```env
+# AWS Configuration
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-access-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-access-key
+AWS_S3_BUCKET_NAME=your-bucket-name
+
+# Upload Configuration (Customizable)
+MAX_IMAGES_PER_PRODUCT=3
+ALLOWED_FILE_TYPES="jpg,jpeg,png,webp"
+MAX_FILE_SIZE_MB=5
+```
+
+#### **Estrutura de Pastas no S3**
+
+```
+your-bucket-name/
+??? products/
+?   ??? {productId}/
+?   ?   ??? images/
+?   ?       ??? {uuid1}.jpg
+?   ?       ??? {uuid2}.png
+?   ?       ??? {uuid3}.webp
+??? users/
+?   ??? {userId}/
+?   ?   ??? profile/
+?   ?       ??? {uuid}.jpg
+??? materials/
+    ??? {materialId}/
+    ?   ??? images/
+    ?       ??? {uuid}.jpg
+```
+
+#### **Configurações Dinâmicas**
+
+**Limite de Imagens por Produto:**
+
+- Configurável via `MAX_IMAGES_PER_PRODUCT`
+- Padrão: 3 imagens
+- Validação automática no upload
+
+**Tipos de Arquivo Permitidos:**
+
+- Configurável via `ALLOWED_FILE_TYPES`
+- Padrão: "jpg,jpeg,png,webp"
+- Separados por vírgula
+
+**Tamanho Máximo:**
+
+- Configurável via `MAX_FILE_SIZE_MB`
+- Padrão: 5MB
+- Aplicado automaticamente
+
+**Chaves Dinâmicas:**
+
+```javascript
+// Utiliza crypto.randomUUID() nativo do Node.js
+import { randomUUID } from "crypto";
+
+// Produtos: products/{productId}/images/{uuid}.{ext}
+// Usuários: users/{userId}/profile/{uuid}.{ext}
+// Materiais: materials/{materialId}/images/{uuid}.{ext}
+const uniqueId = randomUUID(); // Substitui v4 as uuidv4
+```
+
+### **Dependências Necessárias**
+
+```bash
+npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+```
+
+**Nota:** O projeto utiliza `crypto.randomUUID()` nativo do Node.js para geração de UUIDs, não sendo necessária biblioteca externa
+})
+});
+
+const uploadData = await response.json();
+
+// 2. Upload direto ao S3
+const uploadPromises = uploadData.map(async (data, index) => {
+await fetch(data.uploadUrl, {
+method: 'PUT',
+body: files[index],
+headers: { 'Content-Type': files[index].type }
+});
+
+    return {
+      key: data.key,
+      altText: `Product image ${index + 1}`
+    };
+
+});
+
+const uploads = await Promise.all(uploadPromises);
+
+// 3. Confirmar upload
+await fetch(`/products/${productId}/images/confirm`, {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${token}`
+},
+body: JSON.stringify({ uploads })
+});
+}
+
+````
+
+### **Dependências Necessárias**
+
+```bash
+npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner uuid
+npm install -D @types/uuid
+````

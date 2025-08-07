@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import * as bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -325,10 +326,10 @@ async function main() {
   console.log("??? Creating product images...");
   await Promise.all([
     prisma.productImage.upsert({
-      where: { id: "product-image-1" },
+      where: { id: randomUUID() },
       update: {},
       create: {
-        id: "product-image-1",
+        id: randomUUID(),
         productId: products[0].id,
         imageUrl: "https://example.com/produto1-img1.jpg",
         altText: "Produto 1 - Imagem Principal",
@@ -336,10 +337,10 @@ async function main() {
       },
     }),
     prisma.productImage.upsert({
-      where: { id: "product-image-2" },
+      where: { id: randomUUID() },
       update: {},
       create: {
-        id: "product-image-2",
+        id: randomUUID(),
         productId: products[0].id,
         imageUrl: "https://example.com/produto1-img2.jpg",
         altText: "Produto 1 - Imagem Secundária",
@@ -352,10 +353,10 @@ async function main() {
   console.log("?? Creating promotions...");
   await Promise.all([
     prisma.promotion.upsert({
-      where: { id: "promotion-1" },
+      where: { id: randomUUID() },
       update: {},
       create: {
-        id: "promotion-1",
+        id: randomUUID(),
         productId: products[0].id,
         title: "Promoção de Lançamento",
         description: "Desconto especial para novos produtos",
@@ -372,10 +373,10 @@ async function main() {
   console.log("?? Creating financial records...");
   await Promise.all([
     prisma.financialRecord.upsert({
-      where: { id: "financial-record-1" },
+      where: { id: randomUUID() },
       update: {},
       create: {
-        id: "financial-record-1",
+        id: randomUUID(),
         type: "entrada",
         category: "Venda",
         description: "Venda do Produto 1",
@@ -387,10 +388,10 @@ async function main() {
       },
     }),
     prisma.financialRecord.upsert({
-      where: { id: "financial-record-2" },
+      where: { id: randomUUID() },
       update: {},
       create: {
-        id: "financial-record-2",
+        id: randomUUID(),
         type: "saida",
         category: "Compra de Material",
         description: "Compra de material para produção",
