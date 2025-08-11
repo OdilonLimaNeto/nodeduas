@@ -10,6 +10,10 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# Environment files
+envs/.env.prod
+envs/.env.production
+envs/.env.test
 
 # Build outputs
 dist/
@@ -45,3 +49,9 @@ jspm_packages/
 
 # Optional eslint cache
 .eslintcache
+
+# Docker
+.dockerignore
+
+# Production files
+docker-compose.override.yml

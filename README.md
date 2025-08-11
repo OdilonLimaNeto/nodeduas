@@ -2,6 +2,29 @@
 
 Uma API RESTful construída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
 
+## ?? Quick Start para Desenvolvedores
+
+**Novo no projeto?** Siga o guia rápido:
+
+```bash
+# 1. Clone o repositório
+git clone <repository-url>
+cd no-de-duas-api
+
+# 2. Execute o setup automatizado
+./scripts/dev-setup.sh
+
+# 3. Acesse a API
+curl http://localhost:3000/health
+```
+
+**Pronto!** Sua API está rodando em http://localhost:3000
+
+?? **Para instruções detalhadas de desenvolvimento, veja [DEVELOPMENT.md](./DEVELOPMENT.md)**
+?? **Para histórico de mudanças, veja [CHANGELOG.md](./CHANGELOG.md)**
+
+> **Nota**: Se você encontrar problemas relacionados ao Prisma, eles foram corrigidos na versão atual. Use `./scripts/test-prisma.sh` para diagnóstico.
+
 ## ?? Tecnologias Utilizadas
 
 - **NestJS** - Framework Node.js
