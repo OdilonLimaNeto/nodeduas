@@ -26,6 +26,18 @@ export const environmentSchema = Joi.object({
   JWT_REFRESH_EXPIRES_IN: Joi.string().default("7d"),
 
   // AWS S3 Configuration
+  USE_LOCALSTACK: Joi.boolean().default(false),
+  LOCALSTACK_ENDPOINT: Joi.string()
+    .uri()
+    .when('USE_LOCALSTACK', {
+      is: true,
+      then: Joi.required(),
+      otherwise: Joi.optional()
+    })
+    .messages({
+      'any.required': 'LOCALSTACK_ENDPOINT is required when USE_LOCALSTACK is true',
+      'string.uri': 'LOCALSTACK_ENDPOINT must be a valid URI (e.g., http://localhost:4566)'
+    }),
   AWS_REGION: Joi.string().required(),
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),

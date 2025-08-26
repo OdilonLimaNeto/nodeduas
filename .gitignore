@@ -55,3 +55,9 @@ jspm_packages/
 
 # Production files
 docker-compose.override.yml
+
+# LocalStack
+localstack/logs/*.log
+localstack/logs/*.out
+localstack/logs/*.err
+.localstack/

@@ -13,6 +13,7 @@ import { Public } from "../common/decorators/public.decorator";
 import { GenerateUploadUrlsDto } from "./dto/upload-urls.dto";
 import { ConfirmUploadDto } from "./dto/confirm-upload.dto";
 import { ReorderImagesDto } from "./dto/reorder-images.dto";
+import { Role } from "@/common/enums/role.enum";
 
 @Controller("products/:productId/images")
 export class ProductImagesController {
@@ -24,7 +25,7 @@ export class ProductImagesController {
     return this.productImagesService.getUploadConfiguration();
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Post("upload-urls")
   async generateUploadUrls(
     @Param("productId") productId: string,
@@ -36,7 +37,7 @@ export class ProductImagesController {
     );
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Post("confirm")
   async confirmUpload(
     @Param("productId") productId: string,
@@ -54,7 +55,7 @@ export class ProductImagesController {
     return this.productImagesService.findByProductId(productId);
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Patch("reorder")
   async updateSortOrder(
     @Param("productId") productId: string,
@@ -66,7 +67,7 @@ export class ProductImagesController {
     );
   }
 
-  @Roles("admin")
+  @Roles(Role.ADMIN)
   @Delete(":imageId")
   async deleteImage(
     @Param("productId") productId: string,

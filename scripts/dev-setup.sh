@@ -50,6 +50,22 @@ until docker-compose exec db pg_isready -U postgres > /dev/null 2>&1; do
     sleep 2
 done
 
+# Wait for LocalStack to be ready
+echo "Waiting for LocalStack to be ready..."
+until curl -f http://localhost:4566/_localstack/health > /dev/null 2>&1; do
+    echo "LocalStack not ready yet, waiting..."
+    sleep 3
+done
+echo "LocalStack is ready!"
+
+# Verify S3 bucket exists
+echo "Verifying S3 bucket setup..."
+if docker-compose exec localstack awslocal s3 ls s3://no-de-duas > /dev/null 2>&1; then
+    echo "? S3 bucket 'no-de-duas' is available"
+else
+    echo "? S3 bucket not found, but LocalStack initialization scripts should have created it"
+fi
+
 # Run Prisma migrations
 echo "Running Prisma migrations..."
 echo "Note: This may show OpenSSL warnings, but they are usually harmless"
@@ -97,9 +113,13 @@ echo "Development environment is ready!"
 echo "==================================="
 echo "API is available at: http://localhost:3000"
 echo "Database is available at: localhost:5432"
+echo "LocalStack S3 is available at: http://localhost:4566"
+echo "S3 Bucket: no-de-duas"
 echo ""
 echo "Useful commands:"
-echo "  View logs: docker-compose logs -f api"
+echo "  View API logs: docker-compose logs -f api"
+echo "  View LocalStack logs: docker-compose logs -f localstack"
+echo "  Test S3: docker-compose exec localstack awslocal s3 ls s3://no-de-duas"
 echo "  Stop environment: ./scripts/dev-stop.sh"
 echo "  Reset environment: ./scripts/dev-reset.sh"
 echo "==================================="

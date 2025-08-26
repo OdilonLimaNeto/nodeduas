@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
   S3Client,
@@ -10,18 +10,38 @@ import { randomUUID } from "crypto";
 
 @Injectable()
 export class AwsS3Service {
+  private readonly logger = new Logger(AwsS3Service.name);
   private s3Client: S3Client;
   private bucketName: string;
   private maxFileSizeBytes: number;
+  private useLocalStack: boolean;
+  private localStackEndpoint: string;
 
   constructor(private configService: ConfigService) {
-    this.s3Client = new S3Client({
+    this.useLocalStack = this.configService.get<boolean>('USE_LOCALSTACK', false);
+    this.localStackEndpoint = this.configService.get<string>('LOCALSTACK_ENDPOINT');
+    
+    // S3 Client configuration
+    const s3Config: any = {
       region: this.configService.get("AWS_REGION"),
       credentials: {
         accessKeyId: this.configService.get("AWS_ACCESS_KEY_ID"),
         secretAccessKey: this.configService.get("AWS_SECRET_ACCESS_KEY"),
       },
-    });
+    };
+
+    // Add LocalStack specific configuration
+    if (this.useLocalStack && this.localStackEndpoint) {
+      s3Config.endpoint = this.localStackEndpoint;
+      s3Config.forcePathStyle = true; // Required for LocalStack
+      s3Config.s3ForcePathStyle = true; // Legacy support
+      
+      this.logger.log(`Initializing S3 with LocalStack endpoint: ${this.localStackEndpoint}`);
+    } else {
+      this.logger.log('Initializing S3 with AWS endpoint');
+    }
+
+    this.s3Client = new S3Client(s3Config);
     this.bucketName = this.configService.get("AWS_S3_BUCKET_NAME");
     this.maxFileSizeBytes =
       this.configService.get<number>("MAX_FILE_SIZE_MB", 5) * 1024 * 1024;
@@ -48,10 +68,23 @@ export class AwsS3Service {
   }
 
   getPublicUrl(key: string): string {
+    if (this.useLocalStack && this.localStackEndpoint) {
+      // LocalStack URL format: http://localhost:4566/bucket-name/key
+      return `${this.localStackEndpoint}/${this.bucketName}/${key}`;
+    }
+    
+    // AWS S3 URL format
     return `https://${this.bucketName}.s3.${this.configService.get("AWS_REGION")}.amazonaws.com/${key}`;
   }
 
   extractKeyFromUrl(url: string): string {
+    if (this.useLocalStack && this.localStackEndpoint) {
+      // Extract key from LocalStack URL format
+      const baseUrl = `${this.localStackEndpoint}/${this.bucketName}/`;
+      return url.replace(baseUrl, '');
+    }
+    
+    // Extract key from AWS S3 URL format
     return url.split(".amazonaws.com/")[1];
   }
 

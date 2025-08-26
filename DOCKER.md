@@ -138,3 +138,112 @@ docker-compose build --no-cache
 - Minimal attack surface (only required packages)
 - Resource limits configured
 - Secrets management ready for AWS deployment
+
+## LocalStack Integration
+
+### Development Service Architecture
+
+The development environment includes **LocalStack** to provide local AWS services simulation:
+
+#### LocalStack Container Configuration
+
+```yaml
+localstack:
+  image: localstack/localstack:3
+  container_name: no-de-duas-localstack
+  ports:
+    - "4566:4566"      # Main LocalStack endpoint
+    - "4510-4559:4510-4559"  # Additional service ports
+  environment:
+    - SERVICES=s3      # Only S3 service enabled
+    - DEBUG=1          # Enhanced logging
+    - PERSISTENCE=1    # Data persistence across restarts
+  volumes:
+    - "./localstack/init-scripts:/etc/localstack/init/ready.d"
+    - "localstack_data:/var/lib/localstack"
+    - "./localstack/logs:/var/log/localstack"
+```
+
+#### Automatic S3 Initialization
+
+LocalStack automatically runs initialization scripts from `/etc/localstack/init/ready.d`:
+
+- **Script**: `01-setup-s3.sh`
+- **Functions**:
+  - Creates S3 bucket `no-de-duas`
+  - Configures bucket policy for development
+  - Sets up CORS configuration
+  - Creates initial folder structure
+
+#### Service Dependencies
+
+```yaml
+api:
+  depends_on:
+    db:
+      condition: service_healthy
+    localstack:
+      condition: service_healthy  # API waits for LocalStack
+```
+
+#### Health Checks
+
+LocalStack includes health check monitoring:
+
+```yaml
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
+```
+
+#### Resource Management
+
+LocalStack is configured with appropriate resource limits:
+
+```yaml
+deploy:
+  resources:
+    limits:
+      memory: 1G      # Maximum memory usage
+    reservations:
+      memory: 512M    # Reserved memory
+```
+
+### Development vs Production
+
+| Component | Development | Production |
+|-----------|------------|------------|
+| S3 Service | LocalStack (local) | AWS S3 (cloud) |
+| Endpoint | http://localhost:4566 | AWS regional endpoint |
+| Credentials | test/test | AWS IAM credentials |
+| Data Persistence | Docker volume | AWS S3 durability |
+| Initialization | Automatic via scripts | Manual/Terraform |
+
+### LocalStack File Structure
+
+```
+localstack/
+??? init-scripts/           # Auto-run when LocalStack ready
+?   ??? 01-setup-s3.sh     # S3 bucket and policy setup
+??? logs/                  # LocalStack execution logs
+    ??? .gitkeep          # Placeholder for log files
+```
+
+### Debugging LocalStack
+
+```bash
+# Check LocalStack health
+curl http://localhost:4566/health
+
+# View LocalStack logs
+docker-compose logs localstack
+
+# List S3 buckets
+docker-compose exec localstack awslocal s3 ls
+
+# Manual bucket operations
+docker-compose exec localstack awslocal s3 ls s3://no-de-duas/
+```

@@ -1,6 +1,14 @@
 # No de Duas API
 
-Uma API RESTful construída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
+Uma API R## ??? Tecnologias Utilizadas
+
+- **NestJS** - Framework Node.js
+- **TypeScript** - Linguagem de programação
+- **Prisma** - ORM para banco de dados
+- **JWT** - Autenticação com tokens
+- **bcrypt** - Hash de senhas
+- **Custom Exceptions** - Tratamento de erros personalizado
+- **LocalStack** - Simulação local de serviços AWS S3 para desenvolvimentoonstruída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
 
 ## ?? Quick Start para Desenvolvedores
 
@@ -16,9 +24,13 @@ cd no-de-duas-api
 
 # 3. Acesse a API
 curl http://localhost:3000/health
+
+# 4. Teste a integração S3 (opcional)
+./scripts/test-s3.sh
 ```
 
 **Pronto!** Sua API está rodando em http://localhost:3000
+- LocalStack S3: http://localhost:4566 (para desenvolvimento)
 
 ?? **Para instruções detalhadas de desenvolvimento, veja [DEVELOPMENT.md](./DEVELOPMENT.md)**
 ?? **Para histórico de mudanças, veja [CHANGELOG.md](./CHANGELOG.md)**

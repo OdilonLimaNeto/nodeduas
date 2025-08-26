@@ -160,6 +160,10 @@ no-de-duas-api/
 ?   ??? .env.example           # Template for environment variables
 ?   ??? .env.dev               # Development environment (auto-created)
 ?   ??? .env.prod.example      # Production template
+??? localstack/                # LocalStack configuration
+?   ??? init-scripts/          # Auto-initialization scripts
+?   ?   ??? 01-setup-s3.sh     # S3 bucket setup
+?   ??? logs/                  # LocalStack logs
 ??? scripts/
 ?   ??? dev-setup.sh           # Initial setup script
 ?   ??? dev-start.sh           # Start development environment
@@ -167,7 +171,8 @@ no-de-duas-api/
 ?   ??? dev-reset.sh           # Reset everything
 ?   ??? migrate.sh             # Run database migrations
 ?   ??? seed-db.sh             # Seed database
-?   ??? test-prisma.sh         # Test Prisma setup (New)
+?   ??? test-prisma.sh         # Test Prisma setup
+?   ??? test-s3.sh             # Test S3 integration (New)
 ??? src/                       # Application source code
 ??? prisma/                    # Database schema and migrations
 ??? docker-compose.yml         # Base Docker Compose configuration
@@ -230,6 +235,137 @@ Create this file based on `envs/.env.prod.example` for production deployment:
   - "MAX_IMAGES_PER_PRODUCT" must be at least 1
   - "DATABASE_URL" is required
 ```
+
+## ??? LocalStack S3 Integration
+
+The development environment includes **LocalStack** to provide a local AWS S3-compatible service for file storage testing, eliminating the need for real AWS credentials during development.
+
+### ?? LocalStack Configuration
+
+LocalStack is automatically configured with:
+
+- **Service**: S3 (Amazon Simple Storage Service)
+- **Endpoint**: http://localhost:4566
+- **Region**: us-east-1
+- **Bucket**: no-de-duas (auto-created)
+- **Credentials**: test/test (for LocalStack compatibility)
+
+### ?? Environment Variables for LocalStack
+
+The development environment (`envs/.env.dev`) includes:
+
+```bash
+# LocalStack S3 Configuration
+USE_LOCALSTACK=true
+LOCALSTACK_ENDPOINT="http://localstack:4566"
+AWS_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="test"
+AWS_SECRET_ACCESS_KEY="test"
+AWS_S3_BUCKET_NAME="no-de-duas"
+```
+
+### ?? Automatic Initialization
+
+When LocalStack starts, it automatically:
+
+1. **Creates the bucket** `no-de-duas`
+2. **Sets bucket policy** for public read access (development only)
+3. **Configures CORS** for web access
+4. **Creates folder structure**:
+   - `products/` - for product images
+   - `users/` - for user avatars
+   - `materials/` - for material files
+   - `uploads/temp/` - for temporary uploads
+
+### ?? Testing S3 Integration
+
+Use the dedicated test script to verify S3 functionality:
+
+```bash
+./scripts/test-s3.sh
+```
+
+This script tests:
+- LocalStack availability
+- S3 service functionality
+- Bucket existence and contents
+- File upload/download operations
+- API integration (if running)
+
+### ?? Manual S3 Operations
+
+Interact with LocalStack S3 directly:
+
+```bash
+# List all buckets
+docker-compose exec localstack awslocal s3 ls
+
+# List bucket contents
+docker-compose exec localstack awslocal s3 ls s3://no-de-duas/ --recursive
+
+# Upload a test file
+echo "test" | docker-compose exec -T localstack awslocal s3 cp /dev/stdin s3://no-de-duas/test.txt
+
+# Download a file
+docker-compose exec localstack awslocal s3 cp s3://no-de-duas/test.txt /tmp/downloaded.txt
+
+# Delete a file
+docker-compose exec localstack awslocal s3 rm s3://no-de-duas/test.txt
+```
+
+### ?? LocalStack Debugging
+
+#### Check LocalStack Status
+
+```bash
+# Check if LocalStack is running
+curl http://localhost:4566/health
+
+# View LocalStack logs
+docker-compose logs localstack
+
+# Check LocalStack services
+curl http://localhost:4566/_localstack/health
+```
+
+#### Common LocalStack Issues
+
+1. **Bucket not found**: Run initialization script manually
+   ```bash
+   docker-compose exec localstack /etc/localstack/init/ready.d/01-setup-s3.sh
+   ```
+
+2. **Connection refused**: Ensure LocalStack is running
+   ```bash
+   docker-compose restart localstack
+   ```
+
+3. **Permission denied**: Check if bucket policy is applied
+   ```bash
+   docker-compose exec localstack awslocal s3api get-bucket-policy --bucket no-de-duas
+   ```
+
+### ?? Production vs Development
+
+| Aspect | Development (LocalStack) | Production (AWS S3) |
+|--------|-------------------------|-------------------|
+| Endpoint | http://localhost:4566 | AWS S3 regional endpoint |
+| Credentials | test/test | Real AWS credentials |
+| Bucket Policy | Public read (insecure) | Secure, restricted access |
+| Data Persistence | Docker volume | AWS S3 durability |
+| Cost | Free | AWS S3 pricing |
+
+### ?? LocalStack File Structure
+
+```
+localstack/
+??? init-scripts/
+?   ??? 01-setup-s3.sh     # Automatic S3 setup script
+??? logs/                  # LocalStack execution logs
+    ??? .gitkeep
+```
+
+The init script runs automatically when LocalStack becomes ready and sets up the complete S3 environment.
 
 ## ?? Troubleshooting
 

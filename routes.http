@@ -59,7 +59,7 @@ GET {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
 
 ### 7. Get User by ID
-@userId = b2d988da-ba6e-4d20-a5ba-a0f9ed63eaab
+@userId = b2e28bf7-8c99-4abe-89c1-bc9e1dd70bbb
 GET {{baseUrl}}/users/{{userId}}
 Authorization: Bearer {{accessToken}}
 
@@ -352,12 +352,8 @@ Authorization: Bearer {{accessToken}}
 {
   "files": [
     {
-      "fileName": "product-image-1.jpg",
+      "fileName": "product-image-5.jpg",
       "contentType": "image/jpeg"
-    },
-    {
-      "fileName": "product-image-2.png", 
-      "contentType": "image/png"
     }
   ]
 }
@@ -391,18 +387,18 @@ Authorization: Bearer {{accessToken}}
 {
   "imageOrders": [
     {
-      "id": "image-id-1",
+      "id": "1d828d4b-0a38-4c07-82de-b45e768d0195",
       "sortOrder": 2
     },
     {
-      "id": "image-id-2", 
+      "id": "62c5b792-0163-427c-bf5e-64b215dc5c84", 
       "sortOrder": 1
     }
   ]
 }
 
 ### 45. Delete Product Image
-@imageId = image-id-to-delete
+@imageId = 9941e24c-f774-4e1b-ba77-10d724fd8c09
 DELETE {{baseUrl}}/products/{{productId}}/images/{{imageId}}
 Authorization: Bearer {{accessToken}}
 

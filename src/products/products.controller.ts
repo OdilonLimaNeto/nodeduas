@@ -12,12 +12,13 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { Roles } from "../common/decorators/roles.decorator";
 import { Public } from "../common/decorators/public.decorator";
+import { Role } from "@/common/enums/role.enum";
 
 @Controller("products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Post()
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
@@ -42,7 +43,7 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
-  @Roles("admin", "moderator")
+  @Roles(Role.ADMIN, Role.MODERATOR)
   @Patch(":id")
   async update(
     @Param("id") id: string,
@@ -51,13 +52,13 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto);
   }
 
-  @Roles("admin")
+  @Roles(Role.ADMIN)
   @Patch(":id/deactivate")
   async deactivate(@Param("id") id: string) {
     return this.productsService.deactivate(id);
   }
 
-  @Roles("admin")
+  @Roles(Role.ADMIN)
   @Patch(":id/activate")
   async activate(@Param("id") id: string) {
     return this.productsService.activate(id);
