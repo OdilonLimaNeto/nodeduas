@@ -8,7 +8,7 @@ Uma API R## ??? Tecnologias Utilizadas
 - **JWT** - Autenticação com tokens
 - **bcrypt** - Hash de senhas
 - **Custom Exceptions** - Tratamento de erros personalizado
-- **LocalStack** - Simulação local de serviços AWS S3 para desenvolvimentoonstruída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
+- **LocalStack** - Simulação local de serviços AWS S3 para desenvolvimento construída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
 
 ## ?? Quick Start para Desenvolvedores
 
