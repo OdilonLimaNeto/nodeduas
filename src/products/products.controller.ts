@@ -14,7 +14,7 @@ import { Roles } from "../common/decorators/roles.decorator";
 import { Public } from "../common/decorators/public.decorator";
 import { Role } from "@/common/enums/role.enum";
 
-@Controller("products")
+@Controller("admin/products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
