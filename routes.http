@@ -552,6 +552,122 @@ Authorization: Bearer {{accessToken}}
 GET {{baseUrl}}/stock/status?outOfStockOnly=true
 Authorization: Bearer {{accessToken}}
 
+### === PROMOTIONS MANAGEMENT ROUTES ===
+
+### 72. Get Active Promotions (Public)
+GET {{baseUrl}}/promotions/active
+
+### 73. Get Hero Promotions (Public)
+GET {{baseUrl}}/promotions/hero
+
+### 74. Get All Promotions (Public)
+GET {{baseUrl}}/promotions
+
+### 75. Get Promotions with Filters
+GET {{baseUrl}}/promotions?activeOnly=true&heroOnly=false
+GET {{baseUrl}}/promotions?includeExpired=true
+
+### 76. Get Promotions by Product (Public)
+GET {{baseUrl}}/promotions/product/{{productId}}
+
+### 77. Get Promotion by ID (Public)
+@promotionId = promotion-example-1
+GET {{baseUrl}}/promotions/{{promotionId}}
+
+### 78. Create New Promotion
+POST {{baseUrl}}/promotions
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "productId": "{{productId}}",
+  "title": "Promoção Flash de Verão",
+  "description": "Desconto especial por tempo limitado",
+  "discountPercentage": 25,
+  "isHeroPromotion": true,
+  "isActive": true,
+  "startDate": "2024-01-15T00:00:00.000Z",
+  "endDate": "2024-02-15T23:59:59.000Z"
+}
+
+### 79. Update Promotion
+PATCH {{baseUrl}}/promotions/{{promotionId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "Promoção Flash - Atualizada",
+  "discountPercentage": 30,
+  "description": "Desconto ainda maior por tempo limitado!"
+}
+
+### 80. Activate Promotion
+PATCH {{baseUrl}}/promotions/{{promotionId}}/activate
+Authorization: Bearer {{accessToken}}
+
+### 81. Deactivate Promotion
+PATCH {{baseUrl}}/promotions/{{promotionId}}/deactivate
+Authorization: Bearer {{accessToken}}
+
+### 82. Get Promotions Summary (Admin/Moderator)
+GET {{baseUrl}}/promotions/summary
+Authorization: Bearer {{accessToken}}
+
+### 83. Delete Promotion (Admin Only)
+DELETE {{baseUrl}}/promotions/{{promotionId}}
+Authorization: Bearer {{accessToken}}
+
+### === PROMOTIONS TESTING ===
+
+### 84. Test Promotion Not Found
+GET {{baseUrl}}/promotions/invalid-promotion-id
+
+### 85. Test Create Promotion with Invalid Product
+POST {{baseUrl}}/promotions
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "productId": "invalid-product-id",
+  "title": "Promoção Inválida",
+  "discountPercentage": 20
+}
+
+### 86. Test Invalid Promotion Dates
+POST {{baseUrl}}/promotions
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "productId": "{{productId}}",
+  "title": "Promoção com Datas Inválidas",
+  "discountPercentage": 15,
+  "startDate": "2024-02-15T00:00:00.000Z",
+  "endDate": "2024-01-15T23:59:59.000Z"
+}
+
+### 87. Test Duplicate Promotion Title
+POST {{baseUrl}}/promotions
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "productId": "{{productId}}",
+  "title": "Promoção de Lançamento",
+  "discountPercentage": 20
+}
+
+### 88. Test Invalid Discount Percentage
+POST {{baseUrl}}/promotions
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "productId": "{{productId}}",
+  "title": "Promoção Inválida",
+  "discountPercentage": 150
+}
+
 ### === NOTES ===
 # 1. Replace {{userId}} with actual user ID from responses
 # 2. Update {{accessToken}} and {{refreshToken}} after each login

@@ -8,7 +8,12 @@ Uma API R## ??? Tecnologias Utilizadas
 - **JWT** - Autenticação com tokens
 - **bcrypt** - Hash de senhas
 - **Custom Exceptions** - Tratamento de erros personalizado
-- **LocalStack** - Simulação local de serviços AWS S3 para desenvolvimento construída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de roles/permissões e tratamento de exceções personalizado.
+- **LocalStack** - Simulação local de serviços AWS S3 para desenvolvimento construída com **NestJS**, **TypeScript** e **Prisma**, implementando autenticação JWT, sistema de - ? **Exceções customizadas** com logs estruturados
+- ? **Refresh tokens** com revogação
+- ? **Testes HTTP** automatizados
+- ? **Documentação** completa
+- ? **Gerenciamento de estoque** completo
+- ? **Sistema de promoções** avançados/permissões e tratamento de exceções personalizado.
 
 ## ?? Quick Start para Desenvolvedores
 
@@ -489,6 +494,141 @@ O sistema implementa **logs estruturados** para todas as exceções:
 ---
 
 **Desenvolvido com ?? usando NestJS + TypeScript**
+
+## ?? **Gerenciamento de Estoque**
+
+### Sistema de Controle Completo
+
+O sistema de estoque oferece **rastreamento automático** e **alertas inteligentes** para manter o controle total do inventário.
+
+#### **?? Funcionalidades:**
+
+- ? **Controle de quantidades** com níveis mínimos e máximos
+- ? **Status automático** (IN_STOCK, LOW_STOCK, OUT_OF_STOCK, DISCONTINUED)
+- ? **Alertas de estoque baixo** com relatórios
+- ? **Ajustes de estoque** com motivos de auditoria
+- ? **Relatórios consolidados** para gestão
+- ? **Controle de acesso** por roles (Admin/Moderator)
+
+#### **?? Endpoints de Estoque**
+
+**Consultas (Admin/Moderator):**
+```http
+GET /stock/summary              # Relatório geral do estoque
+GET /stock/low                  # Produtos com estoque baixo
+GET /stock/out-of-stock         # Produtos fora de estoque
+GET /stock/status?status=...    # Filtro por status específico
+GET /stock/{productId}          # Estoque de produto específico
+```
+
+**Operações (Admin/Moderator):**
+```http
+PATCH /stock/{productId}        # Atualizar dados de estoque
+POST /stock/{productId}/adjust  # Ajustar quantidade com operação
+```
+
+#### **?? Exemplo de Uso:**
+
+**Atualizar Estoque Completo:**
+```json
+PATCH /stock/product-123
+{
+  "stockQuantity": 100,
+  "minStockLevel": 10,
+  "maxStockLevel": 200,
+  "stockStatus": "IN_STOCK"
+}
+```
+
+**Ajuste de Estoque (Venda):**
+```json
+POST /stock/product-123/adjust
+{
+  "operation": "decrease",
+  "quantity": 5,
+  "reason": "Venda realizada"
+}
+```
+
+---
+
+## ?? **Sistema de Promoções**
+
+### Campanhas e Ofertas Inteligentes
+
+Sistema completo para criar, gerenciar e exibir promoções com **controle de datas** e **categorização automática**.
+
+#### **?? Funcionalidades:**
+
+- ? **Promoções Hero** para destaque na homepage
+- ? **Controle de datas** com validação automática
+- ? **Percentuais de desconto** configuráveis
+- ? **Ativação/desativação** dinâmica
+- ? **Relatórios de performance** das promoções
+- ? **Integração com produtos** e sistema de imagens
+
+#### **?? Endpoints de Promoções**
+
+**Consultas Públicas:**
+```http
+GET /promotions                 # Todas as promoções
+GET /promotions/active          # Apenas promoções ativas
+GET /promotions/hero            # Promoções em destaque
+GET /promotions/product/{id}    # Promoções de um produto
+GET /promotions/{id}            # Promoção específica
+```
+
+**Gestão (Admin/Moderator):**
+```http
+POST /promotions                # Criar nova promoção
+PATCH /promotions/{id}          # Atualizar promoção
+PATCH /promotions/{id}/activate # Ativar promoção
+PATCH /promotions/{id}/deactivate # Desativar promoção
+GET /promotions/summary         # Relatório de promoções
+```
+
+**Exclusão (Apenas Admin):**
+```http
+DELETE /promotions/{id}         # Remover promoção
+```
+
+#### **?? Exemplo de Uso:**
+
+**Criar Promoção Hero:**
+```json
+POST /promotions
+{
+  "productId": "product-123",
+  "title": "Promoção Flash de Verão",
+  "description": "Desconto especial por tempo limitado",
+  "discountPercentage": 25,
+  "isHeroPromotion": true,
+  "startDate": "2024-01-15T00:00:00.000Z",
+  "endDate": "2024-02-15T23:59:59.000Z"
+}
+```
+
+**Relatório de Performance:**
+```json
+GET /promotions/summary
+{
+  "totalPromotions": 12,
+  "activePromotions": 8,
+  "heroPromotions": 3,
+  "averageDiscountPercentage": 22.5,
+  "topPromotedProducts": [...]
+}
+```
+
+#### **?? Segurança e Validações:**
+
+- ??? **Validação de datas** (início < fim)
+- ?? **Prevenção de duplicatas** (mesmo título/produto)
+- ? **Verificação de expiração** automática
+- ?? **Controle de acesso** baseado em roles
+- ?? **Logs de auditoria** para todas as operações
+
+---
 
 ## ??? **Gerenciamento de Imagens de Produtos**
 

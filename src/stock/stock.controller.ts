@@ -12,13 +12,10 @@ import { StockService } from './stock.service';
 import { UpdateStockDto } from './dto/update-stock.dto';
 import { StockAdjustmentDto } from './dto/stock-adjustment.dto';
 import { StockQueryDto } from './dto/stock-query.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '@/common/enums/role.enum';
 
 @Controller('admin/stock')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class StockController {
   constructor(private readonly stockService: StockService) {}
 
