@@ -90,19 +90,31 @@ enum TransactionType {
   saida
 }
 
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
 model Product {
-  id            String   @id @default(uuid())
-  name          String
-  description   String?
-  price         Decimal
-  originalPrice Decimal? @map("original_price")
-  category      String
-  isActive      Boolean  @default(true) @map("is_active")
-  isFeatured    Boolean  @default(false) @map("is_featured")
-  rating        Decimal  @default(0)
-  reviewCount   Int      @default(0) @map("review_count")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id              String      @id @default(uuid())
+  name            String
+  description     String?
+  price           Decimal
+  originalPrice   Decimal?    @map("original_price")
+  category        String
+  isActive        Boolean     @default(true) @map("is_active")
+  isFeatured      Boolean     @default(false) @map("is_featured")
+  rating          Decimal     @default(0)
+  reviewCount     Int         @default(0) @map("review_count")
+  stockQuantity   Int         @default(0) @map("stock_quantity")
+  minStockLevel   Int?        @map("min_stock_level")
+  maxStockLevel   Int?        @map("max_stock_level")
+  stockStatus     StockStatus @default(IN_STOCK) @map("stock_status")
+  lastStockUpdate DateTime?   @map("last_stock_update")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
 
   images           ProductImage[]
   promotions       Promotion[]

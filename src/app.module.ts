@@ -8,6 +8,7 @@ import { ProductImagesModule } from "./product-images/product-images.module";
 import { HealthController } from "./health/health.controller";
 import { environmentSchema } from "./config/environment.schema";
 import { getEnvFilePath } from "./config/environment.loader";
+import { StockModule } from "./stock/stock.module";
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { getEnvFilePath } from "./config/environment.loader";
     UsersModule,
     ProductsModule,
     ProductImagesModule,
+    StockModule
   ],
   controllers: [HealthController],
 })

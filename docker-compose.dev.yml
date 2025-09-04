@@ -11,7 +11,7 @@ services:
     volumes:
       # Hot reload - bind mount source code
       - ./src:/app/src:ro
-      - ./prisma:/app/prisma:ro
+      - ./prisma:/app/prisma  # Remove :ro to allow migrations
       - ./package.json:/app/package.json:ro
       - ./tsconfig.json:/app/tsconfig.json:ro
       - ./nest-cli.json:/app/nest-cli.json:ro

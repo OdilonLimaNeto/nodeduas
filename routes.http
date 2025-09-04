@@ -477,6 +477,81 @@ Authorization: Bearer {{accessToken}}
 ### VERIFICAR: Listar imagens do produto
 GET {{baseUrl}}/products/{{productId}}/images
 
+### === STOCK MANAGEMENT ROUTES ===
+
+### 61. Get Product Stock Information
+GET {{baseUrl}}/stock/{{productId}}
+Authorization: Bearer {{accessToken}}
+
+### 62. Update Product Stock
+PATCH {{baseUrl}}/stock/{{productId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "stockQuantity": 100,
+  "minStockLevel": 10,
+  "maxStockLevel": 200,
+  "stockStatus": "IN_STOCK"
+}
+
+### 63. Adjust Stock - Increase
+POST {{baseUrl}}/stock/{{productId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "increase",
+  "quantity": 50,
+  "reason": "New stock received"
+}
+
+### 64. Adjust Stock - Decrease
+POST {{baseUrl}}/stock/{{productId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "decrease",
+  "quantity": 25,
+  "reason": "Sale completed"
+}
+
+### 65. Adjust Stock - Set
+POST {{baseUrl}}/stock/{{productId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "set",
+  "quantity": 75,
+  "reason": "Inventory count adjustment"
+}
+
+### 66. Get Low Stock Products
+GET {{baseUrl}}/stock/low
+Authorization: Bearer {{accessToken}}
+
+### 67. Get Out of Stock Products
+GET {{baseUrl}}/stock/out-of-stock
+Authorization: Bearer {{accessToken}}
+
+### 68. Get Stock Summary Report
+GET {{baseUrl}}/stock/summary
+Authorization: Bearer {{accessToken}}
+
+### 69. Get Products by Stock Status
+GET {{baseUrl}}/stock/status?status=LOW_STOCK
+Authorization: Bearer {{accessToken}}
+
+### 70. Get Low Stock Only
+GET {{baseUrl}}/stock/status?lowStockOnly=true
+Authorization: Bearer {{accessToken}}
+
+### 71. Get Out of Stock Only
+GET {{baseUrl}}/stock/status?outOfStockOnly=true
+Authorization: Bearer {{accessToken}}
+
 ### === NOTES ===
 # 1. Replace {{userId}} with actual user ID from responses
 # 2. Update {{accessToken}} and {{refreshToken}} after each login
