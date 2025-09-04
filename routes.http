@@ -668,6 +668,196 @@ Authorization: Bearer {{accessToken}}
   "discountPercentage": 150
 }
 
+### === MATERIALS MANAGEMENT ROUTES ===
+
+### 89. Get Materials Summary (Admin/Moderator)
+GET {{baseUrl}}/materials/summary
+Authorization: Bearer {{accessToken}}
+
+### 90. Get Low Stock Materials (Admin/Moderator)
+GET {{baseUrl}}/materials/low-stock?threshold=5
+Authorization: Bearer {{accessToken}}
+
+### 91. Get Materials by Type (Admin/Moderator)
+GET {{baseUrl}}/materials/by-type
+Authorization: Bearer {{accessToken}}
+
+### 92. Get Materials by Supplier (Admin/Moderator)
+GET {{baseUrl}}/materials/by-supplier
+Authorization: Bearer {{accessToken}}
+
+### 93. Get All Materials (Admin/Moderator)
+GET {{baseUrl}}/materials
+Authorization: Bearer {{accessToken}}
+
+### 94. Get Materials with Filters
+GET {{baseUrl}}/materials?type=Tecido&lowStockOnly=true&sortBy=quantity&sortOrder=asc
+Authorization: Bearer {{accessToken}}
+
+### 95. Get Material by ID (Admin/Moderator)
+@materialId = material-example-1
+GET {{baseUrl}}/materials/{{materialId}}
+Authorization: Bearer {{accessToken}}
+
+### 96. Get Material with Financial Records (Admin/Moderator)
+GET {{baseUrl}}/materials/{{materialId}}/financials
+Authorization: Bearer {{accessToken}}
+
+### 97. Create New Material
+POST {{baseUrl}}/materials
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Tecido Algodão Premium",
+  "type": "Tecido",
+  "brand": "FabricCorp",
+  "color": "Azul Royal",
+  "quantity": 50,
+  "unitPrice": 25.50,
+  "supplier": "Fornecedor Premium",
+  "purchaseDate": "2024-01-15",
+  "notes": "Material de alta qualidade para produtos premium"
+}
+
+### 98. Update Material
+PATCH {{baseUrl}}/materials/{{materialId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "quantity": 75,
+  "unitPrice": 27.00,
+  "notes": "Preço atualizado conforme nova tabela do fornecedor"
+}
+
+### 99. Adjust Material Quantity - Increase
+POST {{baseUrl}}/materials/{{materialId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "increase",
+  "quantity": 25,
+  "reason": "Recebimento de nova remessa"
+}
+
+### 100. Adjust Material Quantity - Decrease
+POST {{baseUrl}}/materials/{{materialId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "decrease",
+  "quantity": 10,
+  "reason": "Utilizado na produção do produto X"
+}
+
+### 101. Adjust Material Quantity - Set
+POST {{baseUrl}}/materials/{{materialId}}/adjust
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "operation": "set",
+  "quantity": 100,
+  "reason": "Ajuste de inventário após contagem física"
+}
+
+### 102. Delete Material (Admin Only)
+DELETE {{baseUrl}}/materials/{{materialId}}
+Authorization: Bearer {{accessToken}}
+
+### === FINANCIAL RECORDS MANAGEMENT ROUTES ===
+
+### 103. Get Financial Summary (Admin/Moderator)
+GET {{baseUrl}}/financial-records/summary
+Authorization: Bearer {{accessToken}}
+
+### 104. Get Financial Summary with Date Range
+GET {{baseUrl}}/financial-records/summary?dateFrom=2024-01-01&dateTo=2024-12-31
+Authorization: Bearer {{accessToken}}
+
+### 105. Get Revenue Records (Admin/Moderator)
+GET {{baseUrl}}/financial-records/revenue
+Authorization: Bearer {{accessToken}}
+
+### 106. Get Revenue with Date Range
+GET {{baseUrl}}/financial-records/revenue?dateFrom=2024-01-01&dateTo=2024-03-31
+Authorization: Bearer {{accessToken}}
+
+### 107. Get Expenses Records (Admin/Moderator)
+GET {{baseUrl}}/financial-records/expenses
+Authorization: Bearer {{accessToken}}
+
+### 108. Get Expenses with Date Range
+GET {{baseUrl}}/financial-records/expenses?dateFrom=2024-01-01&dateTo=2024-03-31
+Authorization: Bearer {{accessToken}}
+
+### 109. Get All Financial Records (Admin/Moderator)
+GET {{baseUrl}}/financial-records
+Authorization: Bearer {{accessToken}}
+
+### 110. Get Financial Records with Filters
+GET {{baseUrl}}/financial-records?type=entrada&category=Venda&minAmount=50&sortBy=amount&sortOrder=desc
+Authorization: Bearer {{accessToken}}
+
+### 111. Get Financial Record by ID (Admin/Moderator)
+@financialRecordId = financial-record-example-1
+GET {{baseUrl}}/financial-records/{{financialRecordId}}
+Authorization: Bearer {{accessToken}}
+
+### 112. Get Financial Record with Relations (Admin/Moderator)
+GET {{baseUrl}}/financial-records/{{financialRecordId}}/relations
+Authorization: Bearer {{accessToken}}
+
+### 113. Create New Financial Record - Revenue
+POST {{baseUrl}}/financial-records
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "type": "entrada",
+  "category": "Venda",
+  "description": "Venda de produto premium",
+  "amount": 299.99,
+  "date": "2024-01-15",
+  "paymentMethod": "Cartão de Crédito",
+  "productId": "{{productId}}",
+  "notes": "Venda realizada através do site"
+}
+
+### 114. Create New Financial Record - Expense
+POST {{baseUrl}}/financial-records
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "type": "saida",
+  "category": "Compra de Material",
+  "description": "Compra de tecido para produção",
+  "amount": 1250.00,
+  "date": "2024-01-10",
+  "paymentMethod": "Transferência Bancária",
+  "materialId": "{{materialId}}",
+  "notes": "Compra para estoque de produção"
+}
+
+### 115. Update Financial Record
+PATCH {{baseUrl}}/financial-records/{{financialRecordId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{accessToken}}
+
+{
+  "amount": 1300.00,
+  "paymentMethod": "PIX",
+  "notes": "Valor e método de pagamento atualizados"
+}
+
+### 116. Delete Financial Record (Admin Only)
+DELETE {{baseUrl}}/financial-records/{{financialRecordId}}
+Authorization: Bearer {{accessToken}}
+
 ### === NOTES ===
 # 1. Replace {{userId}} with actual user ID from responses
 # 2. Update {{accessToken}} and {{refreshToken}} after each login
